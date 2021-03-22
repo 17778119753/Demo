@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.content.Context;
+import android.os.Environment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,15 +13,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
-
 public class FetchImgsUtil {
 
   /** 下载文件 */
   public static void downImages(String filePath, String imgUrl) {
-    // Log.d("chenhan", "filePath = " + filePath);
     File dir = new File(filePath);
     if (!dir.exists()) {
       dir.mkdirs();
@@ -63,7 +60,6 @@ public class FetchImgsUtil {
       }
       out.close();
       in.close();
-      Log.e("chenhan", "下载完成，图片路径==>" + file.getAbsolutePath());
     } catch (MalformedURLException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -77,12 +73,10 @@ public class FetchImgsUtil {
     if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
       // 优先获取SD卡根目录[/storage/sdcard0]
       path = Environment.getExternalStorageDirectory().getAbsolutePath();
-      Log.e("chenhan", "存在SD卡根目录:path=" + path);
       return path;
     } else {
       // 应用缓存目录[/data/data/应用包名/cache]
       path = context.getCacheDir().getAbsolutePath();
-      Log.e("chenhan", "SD卡不存在,获取缓存根目录:path=" + path);
       return path;
     }
   }

@@ -1,50 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:paddingLeft="20dp"
+  android:paddingRight="20dp"
+  tools:context=".SecondActivity"
+  tools:ignore="MissingConstraints">
+
+
+  <EditText
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:visibility="gone" />
+
+
+  <TextView
+    android:id="@+id/link"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="30dp"
+    android:lines="2"
+    tools:text="link:http/ssdddfsdfsfsdffwef" />
+
+  <ProgressBar
+    android:id="@+id/bar"
+    style="@android:style/Widget.ProgressBar.Horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:max="100" />
+
+
+  <Button
+    android:id="@+id/btn_start"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    tools:context=".SecondActivity"
-    tools:ignore="MissingConstraints">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:onClick="start"
+    android:text="开始爬虫"
+    tools:ignore="OnClick" />
 
 
-    <ProgressBar
-        android:id="@+id/bar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:max="100" />
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:onClick="stop"
+    android:text="停止爬虫"
+    android:visibility="visible"
+    tools:ignore="OnClick" />
 
+  <TextView
+    android:id="@+id/allCount"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    tools:text="总爬虫个数：" />
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="start"
-        android:text="开始爬虫"
-        tools:ignore="OnClick" />
-
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="update"
-        android:text="更新相册"
-        android:visibility="gone"
-        tools:ignore="OnClick" />
-
-
-    <TextView
-        android:id="@+id/count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="爬虫次数" />
-
+  <TextView
+    android:id="@+id/count"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    tools:text="Desc" />
 
 </LinearLayout>

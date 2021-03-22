@@ -1,2 +1,3 @@
+include ':jsoup_engine'
 include ':app'
 rootProject.name = "My Application"

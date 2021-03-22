@@ -1,23 +1,11 @@
 package com.example.myapplication;
 
-import com.hjq.permissions.OnPermission;
-import com.hjq.permissions.Permission;
-import com.hjq.permissions.XXPermissions;
-
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import android.content.Intent;
-import android.net.Uri;
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -25,14 +13,25 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.jsoup_engine.JsoupEngine;
+import com.example.jsoup_engine.JsoupListener;
+import com.hjq.permissions.OnPermission;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SecondActivity extends AppCompatActivity {
 
-  private ThreadPoolExecutor threadPoolExecutor;
   private ProgressBar bar;
   private Button btnStart;
   private TextView count;
+  private TextView linkTv;
+  private TextView allCount;
+  private ProgressDialog dialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +40,12 @@ public class SecondActivity extends AppCompatActivity {
     bar = (ProgressBar) findViewById(R.id.bar);
     btnStart = (Button) findViewById(R.id.btn_start);
     count = (TextView) findViewById(R.id.count);
-    threadPoolExecutor = new ScheduledThreadPoolExecutor(20);
+    linkTv = (TextView) findViewById(R.id.link);
+    allCount = (TextView) findViewById(R.id.allCount);
+    dialog = new ProgressDialog(this);
+    dialog.setMessage("资源连接中...");
     XXPermissions.with(this)
-        // .constantRequest() //可设置被拒绝后继续申请，直到用户授权或者永久拒绝
-        // .permission(Permission.SYSTEM_ALERT_WINDOW, Permission.REQUEST_INSTALL_PACKAGES)
-        // //支持请求6.0悬浮窗权限8.0请求安装权限
-        .permission(Permission.Group.STORAGE) // 不指定权限则自动获取清单中的危险权限
+        .permission(Permission.Group.STORAGE)
         .request(
             new OnPermission() {
 
@@ -63,76 +62,128 @@ public class SecondActivity extends AppCompatActivity {
             });
   }
 
-  public void update(View view) {
-    File f = new File(FetchImgsUtil.getRootDir(SecondActivity.this) + "/chenhan");
-    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-    Uri uri = Uri.fromFile(f);
-    intent.setData(uri);
-    SecondActivity.this.sendBroadcast(intent);
+  public void stop(View view) {
+    JsoupEngine.getInstance().stopJsoup();
+    btnStart.setEnabled(true);
+    btnStart.setText("开始爬虫");
   }
 
   public void start(View view) {
-
+    mOldLink.clear();
+    mNewLink.clear();
     btnStart.setEnabled(false);
     btnStart.setText("爬虫中...");
-    threadPoolExecutor = new ScheduledThreadPoolExecutor(20);
-    threadPoolExecutor.execute(
-        new Runnable() {
-          @Override
-          public void run() {
+    JsoupEngine.getInstance().startJsoup("https://www.csdn.net/", listener);
+  }
 
-            Connection connect = Jsoup.connect("https://www.csdn.net/");
-            try {
-              Document document = connect.get();
-              Elements imgs = document.getElementsByTag("img");
-              Log.d("chenhan", "共检测到下列图片URL：" + imgs.size());
-              runOnUiThread(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      bar.setMax(imgs.size());
-                    }
-                  });
+  // 已爬虫完的Link组，防止重复爬虫
+  private List<String> mOldLink = new ArrayList<>();
+  // 未爬虫的Link组，爬虫过程中收集
+  private List<String> mNewLink = new ArrayList<>();
+  // 前几次Link总体爬虫量
+  private int mAllCount = 0;
 
-              for (int i = 0; i < imgs.size(); i++) {
-                String imgSrc = imgs.get(i).attr("abs:src");
+  private JsoupListener listener =
+      new JsoupListener() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void jsoupProgress(
+            String link, int progress, String currentUrl, List<String> srcList) {
+          count.setText(
+              "当前Link: "
+                  + link
+                  + "\n"
+                  + "当前Link中Img总量: "
+                  + srcList.size()
+                  + "\n"
+                  + "当前Link中爬虫个数: "
+                  + progress);
+          bar.setMax(srcList.size());
+          bar.setProgress(progress);
+          if (!TextUtils.equals(linkTv.getText().toString(), currentUrl)) {
+            linkTv.setText("正在爬虫对象: " + currentUrl);
+          }
+        }
 
-                int finalI = i;
-                runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        if (finalI == imgs.size() - 1) {
-                          threadPoolExecutor.shutdownNow();
-                          bar.setMax(imgs.size());
-                          btnStart.setEnabled(true);
-                          btnStart.setText("开始爬虫");
-                          File f =
-                              new File(FetchImgsUtil.getRootDir(SecondActivity.this) + "/chenhan");
-                          Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                          Uri uri = Uri.fromFile(f);
-                          intent.setData(uri);
-                          SecondActivity.this.sendBroadcast(intent);
-                        } else {
-                          bar.setProgress(finalI + 1);
-                        }
-                      }
-                    });
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void jsoupResult(
+            String link,
+            List<String> srcList,
+            List<String> linkList,
+            String saveFolderPath,
+            boolean isStop) {
+          mAllCount = mAllCount + srcList.size();
+          allCount.setText("总爬虫个数: " + mAllCount);
+          mOldLink.add(link);
+          if (mNewLink.contains(link)) mNewLink.remove(link);
+          mNewLink.addAll(linkList);
+          if (!isStop) handler.sendEmptyMessageDelayed(100, 100);
+        }
 
-                if (TextUtils.isEmpty(imgSrc)) {
-                  continue;
-                }
-
-                Log.d("chenhan", "开始下载 imgSrc = " + imgSrc);
-                FetchImgsUtil.downImages(
-                    FetchImgsUtil.getRootDir(SecondActivity.this) + "/chenhan", imgSrc);
-                Log.e("chenhan", "下载完成");
-              }
-
-            } catch (IOException e) {
-              e.printStackTrace();
+        @Override
+        public void jsoupStatus(String link, int code, String msg) {
+          if (code == -1) {
+            // 无效的链接不存储到Old组中，不做记录
+            if (mNewLink.contains(link)) mNewLink.remove(link);
+            handler.sendEmptyMessageDelayed(100, 100);
+          }
+          if (code == 0) {
+            dialog.setMessage("正在连接网络资源");
+            if (dialog != null && !dialog.isShowing()) {
+              dialog.show();
             }
           }
-        });
+          if (code == 1) {
+            dialog.setMessage("收集网络资源");
+            if (dialog != null && !dialog.isShowing()) {
+              dialog.show();
+            }
+          }
+
+          if (code == 2) {
+            if (dialog != null && dialog.isShowing()) {
+              dialog.dismiss();
+            }
+          }
+        }
+      };
+
+  private Handler handler =
+      new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+          super.handleMessage(msg);
+          if (mNewLink.size() > 0) {
+            String nextLink = getNextLink();
+            JsoupEngine.getInstance().startJsoup(nextLink, listener);
+          } else {
+            Toast.makeText(SecondActivity.this, "爬虫结束", Toast.LENGTH_SHORT).show();
+            btnStart.setEnabled(true);
+            btnStart.setText("开始爬虫");
+          }
+        }
+      };
+
+  private String getNextLink() {
+    Iterator nextLink = mNewLink.iterator();
+    while (nextLink.hasNext()) {
+      String link = (String) nextLink.next();
+      if (mOldLink.contains(link)) {
+        nextLink.remove();
+      } else {
+        return link;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (dialog != null && dialog.isShowing()) {
+      dialog.dismiss();
+    }
+    handler.removeCallbacksAndMessages(null);
   }
 }
