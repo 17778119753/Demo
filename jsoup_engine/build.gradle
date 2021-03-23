@@ -23,8 +23,32 @@ android {
 
 dependencies {
 
-//    api files('libs/okhttp-3.4.2.jar')
-//    api files('libs/okio-1.9.0.jar')
     api files('libs/jsoup-1.10.3.jar')
 
 }
+
+
+//生成jar库
+def zipFile = file('build/intermediates/packaged-classes/release/classes.jar')
+task makeJar(type: Jar) {
+    archiveName 'jsoup_v1.0.0_sdk.jar'
+    from zipTree(zipFile)
+    from(project.zipTree("libs/jsoup-1.10.3.jar"))
+    destinationDir = file('build/libs')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+
+    //以下为此处第三方库需包含文件（gson、okhttp、okio）
+    include('com/**')
+    include('org/**')
+//    include('okhttp3/**')
+//    include('okio/**')
+    include('tv/**')
+    include('ttt/**')
+    include('master/**')
+    include('net/**')
+    include('aidl/**')
+    include('assets/**')
+
+}
+makeJar.dependsOn(build)

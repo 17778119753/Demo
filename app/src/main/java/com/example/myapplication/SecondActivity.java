@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,13 +9,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.jsoup_engine.JsoupEngine;
-import com.example.jsoup_engine.JsoupListener;
+import com.example.jsoup_engine.callback.JsoupListener;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -31,7 +31,7 @@ public class SecondActivity extends AppCompatActivity {
   private TextView count;
   private TextView linkTv;
   private TextView allCount;
-  private ProgressDialog dialog;
+  private EditText edit;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +42,7 @@ public class SecondActivity extends AppCompatActivity {
     count = (TextView) findViewById(R.id.count);
     linkTv = (TextView) findViewById(R.id.link);
     allCount = (TextView) findViewById(R.id.allCount);
-    dialog = new ProgressDialog(this);
-    dialog.setMessage("资源连接中...");
+    edit = (EditText) findViewById(R.id.edit);
     XXPermissions.with(this)
         .permission(Permission.Group.STORAGE)
         .request(
@@ -63,17 +62,28 @@ public class SecondActivity extends AppCompatActivity {
   }
 
   public void stop(View view) {
+    stoped = true;
     JsoupEngine.getInstance().stopJsoup();
     btnStart.setEnabled(true);
     btnStart.setText("开始爬虫");
   }
 
+  private boolean stoped = false;
+
   public void start(View view) {
+    stoped = false;
+    edit.setText(
+        "https://image.baidu.com/search/wisemidresult?tn=wisemidresult&word=%E6%97%85%E6%B8%B8&pn=0&rn=6&size=mid&sp=5&iswiseala=1&ie=utf8&fmpage=index&pos=jingcaitj");
+
+    if (TextUtils.isEmpty(edit.getText().toString())) {
+      Toast.makeText(this, "链接资源为空", Toast.LENGTH_SHORT).show();
+      return;
+    }
     mOldLink.clear();
     mNewLink.clear();
     btnStart.setEnabled(false);
     btnStart.setText("爬虫中...");
-    JsoupEngine.getInstance().startJsoup("https://www.csdn.net/", listener);
+    JsoupEngine.getInstance().startJsoup(edit.getText().toString(), listener);
   }
 
   // 已爬虫完的Link组，防止重复爬虫
@@ -108,17 +118,13 @@ public class SecondActivity extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         @Override
         public void jsoupResult(
-            String link,
-            List<String> srcList,
-            List<String> linkList,
-            String saveFolderPath,
-            boolean isStop) {
+            String link, List<String> srcList, List<String> linkList, String saveFolderPath) {
           mAllCount = mAllCount + srcList.size();
           allCount.setText("总爬虫个数: " + mAllCount);
           mOldLink.add(link);
           if (mNewLink.contains(link)) mNewLink.remove(link);
           mNewLink.addAll(linkList);
-          if (!isStop) handler.sendEmptyMessageDelayed(100, 100);
+          if (!stoped) handler.sendEmptyMessageDelayed(100, 100);
         }
 
         @Override
@@ -129,22 +135,14 @@ public class SecondActivity extends AppCompatActivity {
             handler.sendEmptyMessageDelayed(100, 100);
           }
           if (code == 0) {
-            dialog.setMessage("正在连接网络资源");
-            if (dialog != null && !dialog.isShowing()) {
-              dialog.show();
-            }
+            btnStart.setText("连接网络资源...");
           }
           if (code == 1) {
-            dialog.setMessage("收集网络资源");
-            if (dialog != null && !dialog.isShowing()) {
-              dialog.show();
-            }
+            btnStart.setText("收集网络资源...");
           }
 
           if (code == 2) {
-            if (dialog != null && dialog.isShowing()) {
-              dialog.dismiss();
-            }
+            btnStart.setText("爬虫中...");
           }
         }
       };
@@ -181,9 +179,6 @@ public class SecondActivity extends AppCompatActivity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    if (dialog != null && dialog.isShowing()) {
-      dialog.dismiss();
-    }
     handler.removeCallbacksAndMessages(null);
   }
 }

@@ -1,6 +1,9 @@
 package com.example.jsoup_engine;
 
 import android.app.Application;
+import com.example.jsoup_engine.callback.ElementsCallBack;
+import com.example.jsoup_engine.callback.JsoupListener;
+import java.io.UnsupportedEncodingException;
 
 public abstract class JsoupEngine {
 
@@ -28,4 +31,23 @@ public abstract class JsoupEngine {
 
   /** 停止本次爬虫 */
   public abstract void stopJsoup();
+
+  /**
+   * 返回Document，开发者自行获取所需资源
+   *
+   * @param link 爬虫对象URL
+   * @param charsetName 编码格式
+   * @param callBack 回调接口
+   */
+  public abstract void getElements(String link, String charsetName, ElementsCallBack callBack);
+
+  /**
+   * GBK转UTF-8的方法
+   *
+   * @param gbkStr
+   * @return
+   * @throws UnsupportedEncodingException
+   */
+  public abstract String getUTF8BytesFromGBKString(String gbkStr)
+      throws UnsupportedEncodingException;
 }

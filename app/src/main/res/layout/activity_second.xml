@@ -12,9 +12,13 @@
 
 
   <EditText
-    android:layout_width="wrap_content"
+    android:id="@+id/edit"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:visibility="gone" />
+    android:layout_marginTop="30dp"
+    android:hint="请输入网址链接"
+    android:text="https://www.csdn.net/"
+    android:visibility="visible" />
 
 
   <TextView

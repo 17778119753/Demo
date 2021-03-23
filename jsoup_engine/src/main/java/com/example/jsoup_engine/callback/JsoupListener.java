@@ -1,4 +1,4 @@
-package com.example.jsoup_engine;
+package com.example.jsoup_engine.callback;
 
 import java.util.List;
 
@@ -21,14 +21,8 @@ public interface JsoupListener {
    * @param srcList 当前link下，已爬虫成功的网络图片组
    * @param linkList 当前link对应的link总量
    * @param saveFolderPath 保存地址
-   * @param isStop true:本次result的触发是因为开发者主动调用了stopJsoup，false:SDK内正常回调
    */
-  void jsoupResult(
-      String link,
-      List<String> srcList,
-      List<String> linkList,
-      String saveFolderPath,
-      boolean isStop);
+  void jsoupResult(String link, List<String> srcList, List<String> linkList, String saveFolderPath);
 
   /**
    * 状态回调
