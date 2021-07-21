@@ -20,19 +20,28 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.MyApplication"
     android:usesCleartextTraffic="true">
-    <activity android:name=".SecondActivity">
+    <activity android:name=".TestBitmapAct">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".JsoupActivity">
-      <!--            <intent-filter>-->
-      <!--                <action android:name="android.intent.action.MAIN" />-->
+    <activity android:name=".SecondActivity">
+      <!--      <intent-filter>-->
+      <!--        <action android:name="android.intent.action.MAIN" />-->
 
-      <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-      <!--            </intent-filter>-->
+      <!--        <category android:name="android.intent.category.LAUNCHER" />-->
+      <!--      </intent-filter>-->
+    </activity>
+    <activity android:name=".JsoupActivity">
+
+      <!-- <intent-filter> -->
+      <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+      <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+      <!-- </intent-filter> -->
     </activity>
     <activity
       android:name=".MainActivity"

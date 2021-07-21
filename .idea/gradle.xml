@@ -13,10 +13,17 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/camera2" />
+            <option value="$PROJECT_DIR$/homedemo" />
             <option value="$PROJECT_DIR$/jsoup_engine" />
+            <option value="$PROJECT_DIR$/plugindemo01" />
+            <option value="$PROJECT_DIR$/rxpermission" />
+            <option value="$PROJECT_DIR$/tablayout" />
+            <option value="$PROJECT_DIR$/textureviewdemo" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
+        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>

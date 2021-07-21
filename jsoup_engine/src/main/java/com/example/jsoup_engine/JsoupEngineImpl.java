@@ -1,7 +1,5 @@
 package com.example.jsoup_engine;
 
-import static com.example.jsoup_engine.global.Contants.TAG_CONSTANT;
-
 import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,11 +7,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.example.jsoup_engine.callback.ElementsCallBack;
 import com.example.jsoup_engine.callback.JsoupListener;
 import com.example.jsoup_engine.global.Contants;
 import com.example.jsoup_engine.global.TGlobalApplicationWrapper;
 import com.example.jsoup_engine.utils.JsoupUtil;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,10 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+
+import static com.example.jsoup_engine.global.Contants.TAG_CONSTANT;
 
 public class JsoupEngineImpl extends JsoupEngine {
 
@@ -47,11 +50,14 @@ public class JsoupEngineImpl extends JsoupEngine {
     HOME_HEARD_MAP.put("Accept-Encoding", "gzip, deflate, br");
     HOME_HEARD_MAP.put("Accept-Language", "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6");
     HOME_HEARD_MAP.put("Connection", "keep-alive");
+    // 网站会用cookie跟踪访问过程，当访问过快（快速填写表单）、浏览大量页面时，可能让网站认为你在爬虫，因此中断该cookie下的访问，这时候可以改变cookie或者使用代理Ip解决
+    // Jsoup
     if (!HOME_HEARD_MAP.containsKey("Cookie")) {
       HOME_HEARD_MAP.put(
           "Cookie",
           "BIDUPSID=45401D87AD2D1AC10DC8EF4AF5BF2AAD; PSTM=1595318555; BAIDUID=45401D87AD2D1AC1B7A11A202D1726BA:FG=1; bdshare_firstime=1595501258246; H_WISE_SIDS=154034_154770_153759_151993_155858_149355_150967_156818_156286_155320_154259_155984_148867_155683_156096_154804_156622_153444_152409_131861_154772_155436_153755_151016_127969_154413_154175_155962_155331_152981_155908_150346_155803_146732_131423_154037_155394_154189_156945_155344_157024_154953_157075_151872_144966_153657_154214_154118_154801_154902_156726_155931_154145_147551_157028_153446_156606_152310_155388_154357_155864_110085_157006; MCITY=-187:; __yjs_duid=1_39c522ada6e30df532f8d767834b2a8e1614307604471; top_list=4244232993-7182834579; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_PS_PSSID=33514_33272_33570_33392_33460_22158; st_key_id=17; wise_device=0; delPer=0; PSINO=6; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1614598932,1614598938,1614651172,1614656659; BCLID=6696522698307635931; BDSFRCVID=-xLOJeC62AC9at3eh_4A8PV7WjpqhyTTH6aoV9hsteac5gjTXm08EG0PfM8g0Ku-qw2ZogKK3gOTHxKF_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF=tR-qVIK5tIK3H48k-4QEbbQH-UnLq-RBtgOZ04n-ah05SCb5-4oYqjk3eb3pXt3-W20j0h7m3UTdfh76Wh35K5tTQP6rLtbpKeO4KKJxbp5sShOv5t5rDx_AhUJiB5OMBan7_qvIXKohJh7FM4tW3J0ZyxomtfQxtNRJ0DnjtpChbC8RejKBDj5Mbxv0K-vJ--o2LPoV-TrjDnCrqJ7dXUI8LNDH3xt8K6Pe0Rn7JpDWVML63P62Ktk-3bO7ttoyQJ53Q-bHKR8henc2W-F2eML1Db3hW6vMtg3ts4j5tfcoepvoDPJc3MkbyPjdJJQOBKQB0KnGbUQkeq8CQft20b0EeMtjW6LEK5r2SC_MJCP53j; BCLID_BFESS=6696522698307635931; BDSFRCVID_BFESS=-xLOJeC62AC9at3eh_4A8PV7WjpqhyTTH6aoV9hsteac5gjTXm08EG0PfM8g0Ku-qw2ZogKK3gOTHxKF_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF_BFESS=tR-qVIK5tIK3H48k-4QEbbQH-UnLq-RBtgOZ04n-ah05SCb5-4oYqjk3eb3pXt3-W20j0h7m3UTdfh76Wh35K5tTQP6rLtbpKeO4KKJxbp5sShOv5t5rDx_AhUJiB5OMBan7_qvIXKohJh7FM4tW3J0ZyxomtfQxtNRJ0DnjtpChbC8RejKBDj5Mbxv0K-vJ--o2LPoV-TrjDnCrqJ7dXUI8LNDH3xt8K6Pe0Rn7JpDWVML63P62Ktk-3bO7ttoyQJ53Q-bHKR8henc2W-F2eML1Db3hW6vMtg3ts4j5tfcoepvoDPJc3MkbyPjdJJQOBKQB0KnGbUQkeq8CQft20b0EeMtjW6LEK5r2SC_MJCP53j; tb_as_data=f91194c6824894d324c39c29837c6b9c50ec65fab018aeb4e474b20db842845825c96f71f4c6eb6aea2f61716f232e787570f1fcab17da5132635e67fb49ac3a2ee926ac26ab414b8dc1f022a26b6af0be5ec5feb08e47ecea40e7c3ac42af63418eb176202b934e8a5d65a31f7f67c9; Hm_lpvt_98b9d8c2fd6608d564bf2ac2ae642948=1614661234; st_sign=46af36f3; st_data=305c1867cacda6bc575bc022c406a997445a569b4e6fd53fec92a0642aee94c5d695d65fe4c5360c0f99c161476ba8dc7fb649742c1c4278775ae474ae817ef284ce4f5f60d1c0ad9b4c2c7002d944758ca3e2766e503b929c2f411069f9848b4e9bf304bec24493f1d19c3b7526fc3ce49228569294a5afc07905bed78d5368; BAIDUID_BFESS=CDDCC97066F658F1A310835A932F3477:FG=1; BA_HECTOR=04ahah0ga1a5800ko11g3ri0j0r; ZD_ENTRY=baidu; ab_sr=1.0.0_MmE3OWNlMWI1NjEwM2RiYTNmNmUwNjRiZTZiOWUxZjNhMWVjOTU5Y2ZjYzM3YTdiNWNhMTU1ZjRiZTFhNzRhZDU3NTk1Y2RkMGU4MzQyMzkzM2U4OTYzZTYxMDE3OGQ1");
     }
+    // 浏览器信息
     HOME_HEARD_MAP.put(
         "User-Agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");

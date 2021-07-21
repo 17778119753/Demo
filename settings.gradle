@@ -1,3 +1,9 @@
+include ':rxpermission'
+include ':plugindemo01'
+include ':homedemo'
+include ':tablayout'
+include ':camera2'
+include ':textureviewdemo'
 include ':jsoup_engine'
 include ':app'
 rootProject.name = "My Application"

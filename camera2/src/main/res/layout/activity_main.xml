@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".MainActivity"
+  tools:ignore="MissingConstraints">
+
+  <RelativeLayout
+    android:id="@+id/re_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.camera2.GestureTextureView
+      android:id="@+id/texture_preview"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+    <LinearLayout
+      android:id="@+id/ll_record_timer"
+      android:layout_width="wrap_content"
+      android:layout_height="60dp"
+      android:gravity="center"
+      android:orientation="horizontal"
+      android:visibility="gone">
+
+      <Button
+        android:id="@+id/btn_record"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_vector_recoding" />
+
+      <Chronometer
+        android:id="@+id/record_time"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@drawable/record_time_bg"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="#ffffff" />
+    </LinearLayout>
+
+
+    <Button
+      android:id="@+id/btn03"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_marginLeft="20dp"
+      android:layout_marginTop="30dp"
+      android:layout_marginRight="30dp"
+      android:layout_marginBottom="30dp"
+      android:clickable="true"
+      android:onClick="switchCamera"
+      android:text="旋转"
+      app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.example.camera2.FeedKanRecordButton
+      android:id="@+id/recordBt"
+      android:layout_width="80dp"
+      android:layout_height="80dp"
+      android:layout_alignParentBottom="true"
+      android:layout_centerInParent="true"
+      android:layout_marginBottom="47dp"
+      android:visibility="visible"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:minRecordTime="1000"
+      app:recordTime="29000"
+      app:touchDelay="300" />
+
+
+  </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
